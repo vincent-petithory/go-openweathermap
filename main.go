@@ -122,11 +122,35 @@ func HandleWeather(w io.Writer, cityId string, tpl *template.Template, updateCh 
 	}
 }
 
+func usage() {
+	fmt.Fprintf(os.Stderr, `Usage: %s [OPTIONS] CITY_ID
+
+Fetch current weather data from the v2.5 API of http://openweathermap.org/ for the city with the id CITY_ID.
+Find your city ID at http://openweathermap.org/find/.
+
+By default, the program blocks and fetches the weather periodically.
+
+The template to use for formatting the weather data is read on STDIN and must be a valid Go template (http://golang.org/pkg/text/template/).
+
+Weather formatted data is written on STDOUT, and any errors are written to STDERR.
+
+See https://github.com/vincent-petithory/go-openweathermap for examples.
+
+Options:
+
+`, os.Args[0])
+	flag.PrintDefaults()
+	fmt.Fprintln(os.Stderr)
+}
+
 func main() {
-	var fetchDelay time.Duration
+	var (
+		fetchDelay time.Duration
+		runOnce    bool
+	)
 	flag.DurationVar(&fetchDelay, "fetch-delay", time.Minute*30, "How much time between each fetch.")
-	var runOnce bool
 	flag.BoolVar(&runOnce, "once", false, "Run once and exit")
+	flag.Usage = usage
 
 	flag.Parse()
 	if flag.NArg() == 0 {
