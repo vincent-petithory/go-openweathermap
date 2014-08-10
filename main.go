@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -94,6 +95,10 @@ func FetchWeather(cityId string) (*CurrentWeather, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Failed to retrieve weather (HTTP %d)", resp.StatusCode)
+	}
 
 	var cw CurrentWeather
 	if err := json.NewDecoder(resp.Body).Decode(&cw); err != nil {
